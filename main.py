@@ -32,7 +32,8 @@ Skriv professionellt och vänligt.
     '''
 
     try:
-        ai_response = requests.post("https://c13d-213-102-91-95.ngrok-free.app/api/generate", json={
+        # Replace the ngrok URL with your current Cloudflare Tunnel URL
+        ai_response = requests.post("https://controller-quantitative-notification-self.trycloudflare.com/api/generate", json={
             "model": "mistral",
             "prompt": prompt,
             "stream": False
