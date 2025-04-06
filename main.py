@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
+import ollama
 
 app = Flask(__name__)
 
@@ -15,40 +16,29 @@ def analysera():
     except Exception as e:
         return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
 
-    # Prompt till AI
+    # Prompt for AI
     prompt = f'''
-Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
-En potentiell kund har en hemsida på följande URL: {url}
-Här är HTML-innehållet (trimmat): 
-{html[:6000]}
+    Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
+    En potentiell kund har en hemsida på följande URL: {url}
+    Här är HTML-innehållet (trimmat): 
+    {html[:6000]}
 
-Uppgiften:
-- Analysera hur lyxig och professionell sidan upplevs visuellt
-- Kommentera struktur, färgsättning, typsnitt, bildkvalitet och intryck
-- Bedöm innehållets styrka (copywriting, rubriker, språk)
-- Gör en SEO-granskning (struktur, laddtid, taggar, meta, mobilvänlighet)
-- Ge konkreta förbättringsförslag i punktform
-Skriv professionellt och vänligt.
+    Uppgiften:
+    - Analysera hur lyxig och professionell sidan upplevs visuellt
+    - Kommentera struktur, färgsättning, typsnitt, bildkvalitet och intryck
+    - Bedöm innehållets styrka (copywriting, rubriker, språk)
+    - Gör en SEO-granskning (struktur, laddtid, taggar, meta, mobilvänlighet)
+    - Ge konkreta förbättringsförslag i punktform
+    Skriv professionellt och vänligt.
     '''
 
     try:
-        # Replace the ngrok URL with your current Cloudflare Tunnel URL
-        ai_response = requests.post("https://controller-quantitative-notification-self.trycloudflare.com/api/generate", json={
-            "model": "mistral",
-            "prompt": prompt,
-            "stream": False
-        })
+        # Replace with your local AI model
+        ai_response = ollama.run("mistral", prompt=prompt)
 
-        if ai_response.status_code != 200:
-            print(f"AI API responded with status code: {ai_response.status_code}")
-            return jsonify({"error": f"AI API svarade med felkod: {ai_response.status_code}"}), 500
-
-        data = ai_response.json()
-
-        if "response" in data and data["response"].strip():
-            return jsonify({"analys": data["response"]})
+        if ai_response:
+            return jsonify({"analys": ai_response})
         else:
-            print("AI response is empty or invalid")
             return jsonify({"error": "AI-svaret saknar innehåll."}), 500
 
     except requests.exceptions.RequestException as e:
