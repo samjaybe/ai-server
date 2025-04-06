@@ -17,9 +17,9 @@ def analysera():
         return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
 
     prompt = f'''
-    Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare.
+    Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
     En potentiell kund har en hemsida på följande URL: {url}
-    Här är HTML-innehållet (trimmat):
+    Här är HTML-innehållet (trimmat): 
     {html[:6000]}
 
     Uppgiften:
@@ -32,10 +32,15 @@ def analysera():
     '''
 
     try:
-        ai_response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
-        return jsonify({"analys": ai_response['message']['content']})
+        ai_response = ollama.run("mistral", prompt=prompt)
+        if ai_response:
+            return jsonify({"analys": ai_response})
+        else:
+            return jsonify({"error": "AI-svaret saknar innehåll."}), 500
+
     except Exception as e:
         return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
