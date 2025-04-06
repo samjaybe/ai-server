@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import requests
 import ollama
 import os
+import traceback
 
 app = Flask(__name__)
 
@@ -14,12 +15,10 @@ def analysera():
     try:
         res = requests.get(url, timeout=10)
         html = res.text
-        except Exception as e:
-        import traceback
+    except Exception as e:
         print("FULL ERROR:")
         traceback.print_exc()
-        return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
-
+        return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
 
     prompt = f'''
     Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
@@ -37,15 +36,13 @@ def analysera():
     '''
 
     try:
-        ai_response = ollama.run("mistral", prompt=prompt)
-        if ai_response:
-            return jsonify({"analys": ai_response})
-        else:
-            return jsonify({"error": "AI-svaret saknar innehåll."}), 500
-
+        response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
+        result = response["message"]["content"]
+        return jsonify({"analys": result})
     except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
         return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
