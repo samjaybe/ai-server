@@ -40,19 +40,23 @@ Skriv professionellt och vänligt.
         })
 
         if ai_response.status_code != 200:
+            print(f"AI API responded with status code: {ai_response.status_code}")
             return jsonify({"error": f"AI API svarade med felkod: {ai_response.status_code}"}), 500
 
         data = ai_response.json()
 
-        print("=== AI RESPONSE ===")
-        print(data)
-
         if "response" in data and data["response"].strip():
             return jsonify({"analys": data["response"]})
         else:
+            print("AI response is empty or invalid")
             return jsonify({"error": "AI-svaret saknar innehåll."}), 500
 
+    except requests.exceptions.RequestException as e:
+        print(f"RequestException: {e}")
+        return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
+
     except Exception as e:
+        print(f"General Exception: {e}")
         return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
 
 if __name__ == "__main__":
