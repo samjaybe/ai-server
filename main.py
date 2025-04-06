@@ -14,8 +14,12 @@ def analysera():
     try:
         res = requests.get(url, timeout=10)
         html = res.text
-    except Exception as e:
-        return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
+        except Exception as e:
+        import traceback
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
+
 
     prompt = f'''
     Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
