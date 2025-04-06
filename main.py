@@ -16,11 +16,10 @@ def analysera():
     except Exception as e:
         return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
 
-    # Prompt for AI
     prompt = f'''
-    Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare. 
+    Du är en expert på exklusiv webbdesign och SEO för fastighetsmäklare.
     En potentiell kund har en hemsida på följande URL: {url}
-    Här är HTML-innehållet (trimmat): 
+    Här är HTML-innehållet (trimmat):
     {html[:6000]}
 
     Uppgiften:
@@ -33,20 +32,9 @@ def analysera():
     '''
 
     try:
-        # Replace with your local AI model
-        ai_response = ollama.run("mistral", prompt=prompt)
-
-        if ai_response:
-            return jsonify({"analys": ai_response})
-        else:
-            return jsonify({"error": "AI-svaret saknar innehåll."}), 500
-
-    except requests.exceptions.RequestException as e:
-        print(f"RequestException: {e}")
-        return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
-
+        ai_response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
+        return jsonify({"analys": ai_response['message']['content']})
     except Exception as e:
-        print(f"General Exception: {e}")
         return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
 
 if __name__ == "__main__":
