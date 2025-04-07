@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
-import ollama
 import os
 import traceback
 
 app = Flask(__name__)
+
+OLLAMA_URL = "https://sun-cast-copyright-solar.trycloudflare.com"
 
 @app.route("/analysera", methods=["GET"])
 def analysera():
@@ -16,8 +17,6 @@ def analysera():
         res = requests.get(url, timeout=10)
         html = res.text
     except Exception as e:
-        print("FULL ERROR:")
-        traceback.print_exc()
         return jsonify({"error": f"Kunde inte hämta sidan: {str(e)}"}), 500
 
     prompt = f'''
@@ -36,13 +35,31 @@ def analysera():
     '''
 
     try:
-        response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
-        result = response["message"]["content"]
-        return jsonify({"analys": result})
+        response = requests.post(
+            f"{OLLAMA_URL}/api/chat",
+            json={
+                "model": "mistral",
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False
+            },
+            timeout=60
+        )
+
+        # Kontrollera statuskod och innehåll
+        if not response.ok:
+            return jsonify({"error": f"API-svar misslyckades: {response.status_code}"}), 500
+
+        try:
+            data = response.json()
+        except Exception:
+            return jsonify({"error": "Oväntat svar från AI:n, kunde inte tolkas."}), 500
+
+        return jsonify({"analys": data.get("message", {}).get("content", "Inget innehåll i AI-svar.")})
+
     except Exception as e:
-        print("FULL ERROR:")
         traceback.print_exc()
-        return jsonify({"error": f"Kunde inte använda lokal AI: {str(e)}"}), 500
+        return jsonify({"error": f"Kunde inte använda AI: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
