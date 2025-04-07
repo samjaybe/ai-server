@@ -5,7 +5,7 @@ import traceback
 
 app = Flask(__name__)
 
-OLLAMA_URL = "https://lighter-launches-monica-suse.trycloudflare.com"
+OLLAMA_URL = "https://packed-vampire-customize-outline.trycloudflare.com"
 
 @app.route("/analysera", methods=["GET"])
 def analysera():
