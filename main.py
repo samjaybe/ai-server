@@ -5,7 +5,7 @@ import traceback
 
 app = Flask(__name__)
 
-OLLAMA_URL = "https://sun-cast-copyright-solar.trycloudflare.com"
+OLLAMA_URL = "https://gmt-arthritis-reservoir-anxiety.trycloudflare.com"
 
 @app.route("/analysera", methods=["GET"])
 def analysera():
@@ -64,3 +64,7 @@ def analysera():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
+@app.route('/')
+def home():
+    return "Welcome to the Flask app!"
